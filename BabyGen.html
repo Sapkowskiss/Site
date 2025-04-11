@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BabyGen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #e0f7fa; /* Голубой фон */
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #00796b; /* Темно-голубой цвет */
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-column {
+            width: 48%;
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .form-column {
+                width: 100%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .form-column h3 {
+            margin-bottom: 20px;
+            color: #00796b; /* Темно-голубой цвет */
+            font-size: 1.3rem;
+        }
+
+        .form-column label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-column select,
+        .form-column input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-column select:focus,
+        .form-column input:focus {
+            border-color: #00796b; /* Темно-голубой цвет */
+            box-shadow: 0 0 8px rgba(0, 121, 107, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background: #00796b; /* Темно-голубой цвет */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #004d40; /* Более темный голубой цвет */
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .result-container.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .result-container h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .history-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background: #fff;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            transition: right 0.5s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .history-sidebar.open {
+            right: 0;
+        }
+
+        .history-sidebar h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #00796b; /* Темно-голубой цвет */
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .history-item.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .clear-history-btn {
+            width: 100%;
+            padding: 10px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .clear-history-btn:hover {
+            background: #c0392b;
+        }
+
+        .history-toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #00796b; /* Темно-голубой цвет */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .history-toggle-btn:hover {
+            background: #004d40; /* Более темный голубой цвет */
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            button {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .form-column select,
+            .form-column input {
+                font-size: 14px;
+            }
+
+            .history-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .history-sidebar.open {
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BabyGen</h1>
+
+        <div class="form-container">
+            <div class="form-column">
+                <h3>Характеристики родителя 1</h3>
+
+                <label for="blood1">Группа крови:</label>
+                <select id="blood1">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="AB">AB</option>
+                    <option value="O">O</option>
+                </select>
+
+                <label for="eye1">Цвет глаз:</label>
+                <select id="eye1">
+                    <option value="карий">Карий</option>
+                    <option value="зелёный">Зелёный</option>
+                    <option value="голубой">Голубой</option>
+                </select>
+
+                <label for="skin1">Цвет кожи:</label>
+                <select id="skin1">
+                    <option value="светлая">Светлая</option>
+                    <option value="средняя">Средняя</option>
+                    <option value="тёмная">Тёмная</option>
+                </select>
+
+                <label for="hair1">Цвет волос:</label>
+                <select id="hair1">
+                    <option value="чёрные">Чёрные</option>
+                    <option value="каштановые">Каштановые</option>
+                    <option value="рыжие">Рыжие</option>
+                    <option value="блонд">Блонд</option>
+                </select>
+
+                <label for="height1">Рост (см):</label>
+                <input type="number" id="height1" required>
+
+                <label for="nation1">Национальность:</label>
+                <input type="text" id="nation1" required>
+
+                <label for="body1">Телосложение:</label>
+                <select id="body1">
+                    <option value="худощавый">Худощавый</option>
+                    <option value="средний">Средний</option>
+                    <option value="крепкий">Крепкий</option>
+                </select>
+
+                <label for="habit1">Вредные привычки:</label>
+                <select id="habit1">
+                    <option value="есть">Есть</option>
+                    <option value="нет">Нет</option>
+                </select>
+            </div>
+
+            <div class="form-column">
+                <h3>Характеристики родителя 2</h3>
+
+                <label for="blood2">Группа крови:</label>
+                <select id="blood2">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="AB">AB</option>
+                    <option value="O">O</option>
+                </select>
+
+                <label for="eye2">Цвет глаз:</label>
+                <select id="eye2">
+                    <option value="карий">Карий</option>
+                    <option value="зелёный">Зелёный</option>
+                    <option value="голубой">Голубой</option>
+                </select>
+
+                <label for="skin2">Цвет кожи:</label>
+                <select id="skin2">
+                    <option value="светлая">Светлая</option>
+                    <option value="средняя">Средняя</option>
+                    <option value="тёмная">Тёмная</option>
+                </select>
+
+                <label for="hair2">Цвет волос:</label>
+                <select id="hair2">
+                    <option value="чёрные">Чёрные</option>
+                    <option value="каштановые">Каштановые</option>
+                    <option value="рыжие">Рыжие</option>
+                    <option value="блонд">Блонд</option>
+                </select>
+
+                <label for="height2">Рост (см):</label>
+                <input type="number" id="height2" required>
+
+                <label for="nation2">Национальность:</label>
+                <input type="text" id="nation2" required>
+
+                <label for="body2">Телосложение:</label>
+                <select id="body2">
+                    <option value="худощавый">Худощавый</option>
+                    <option value="средний">Средний</option>
+                    <option value="крепкий">Крепкий</option>
+                </select>
+
+                <label for="habit2">Вредные привычки:</label>
+                <select id="habit2">
+                    <option value="есть">Есть</option>
+                    <option value="нет">Нет</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="button" id="calculateBtn">Рассчитать</button>
+
+        <div class="result-container" id="resultContainer">
+            <h2>Результаты</h2>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <button class="history-toggle-btn" id="historyToggleBtn">📜</button>
+
+    <div class="history-sidebar" id="historySidebar">
+        <h2>История расчетов</h2>
+        <div id="historyList"></div>
+        <button class="clear-history-btn" id="clearHistoryBtn">Очистить историю</button>
+    </div>
+
+    <script>
+        const history = [];
+
+        document.getElementById("calculateBtn").addEventListener("click", function () {
+            const blood1 = document.getElementById("blood1").value;
+            const blood2 = document.getElementById("blood2").value;
+            const eye1 = document.getElementById("eye1").value;
+            const eye2 = document.getElementById("eye2").value;
+            const skin1 = document.getElementById("skin1").value;
+            const skin2 = document.getElementById("skin2").value;
+            const hair1 = document.getElementById("hair1").value;
+            const hair2 = document.getElementById("hair2").value;
+            const height1 = parseInt(document.getElementById("height1").value);
+            const height2 = parseInt(document.getElementById("height2").value);
+            const nation1 = document.getElementById("nation1").value;
+            const nation2 = document.getElementById("nation2").value;
+            const body1 = document.getElementById("body1").value;
+            const body2 = document.getElementById("body2").value;
+            const habit1 = document.getElementById("habit1").value;
+            const habit2 = document.getElementById("habit2").value;
+
+            // Определение пола
+            const sex = Math.random() < 0.5 ? "муж" : "жен";
+
+            // Группа крови
+            const bloodMap = {
+                "A,A": ['A', 'O'],
+                "A,B": ['A', 'B', 'AB'],
+                "A,AB": ['A', 'B', 'AB'],
+                "A,O": ['A', 'O'],
+                "B,B": ['B', 'O'],
+                "B,AB": ['A', 'B', 'AB'],
+                "B,O": ['B', 'O'],
+                "AB,AB": ['A', 'B', 'AB'],
+                "AB,O": ['A', 'B'],
+                "O,O": ['O']
+            };
+            const bloodType = getRandomChoice(bloodMap[`${blood1},${blood2}`] || bloodMap[`${blood2},${blood1}`] || ['O']);
+
+            // Цвет глаз
+            const eyeMap = {
+                "карий,карий": 'карий',
+                "карий,зелёный": getRandomChoice(['карий', 'зелёный']),
+                "карий,голубой": getRandomChoice(['карий', 'голубой']),
+                "зелёный,зелёный": getRandomChoice(['зелёный', 'голубой']),
+                "зелёный,голубой": getRandomChoice(['зелёный', 'голубой']),
+                "голубой,голубой": 'голубой'
+            };
+            const eyeColor = eyeMap[`${eye1},${eye2}`] || eyeMap[`${eye2},${eye1}`] || 'карий';
+
+            // Цвет кожи
+            const skinOptions = ["светлая", "средняя", "тёмная"];
+            const skinIndex1 = skinOptions.indexOf(skin1);
+            const skinIndex2 = skinOptions.indexOf(skin2);
+            const skinIndex = Math.round((skinIndex1 + skinIndex2) / 2);
+            const skinColor = skinOptions[skinIndex];
+
+            // Цвет волос
+            const hairMap = {
+                "чёрные,чёрные": 'чёрные',
+                "чёрные,каштановые": getRandomChoice(['чёрные', 'каштановые']),
+                "чёрные,рыжие": getRandomChoice(['чёрные', 'рыжие']),
+                "чёрные,блонд": getRandomChoice(['чёрные', 'каштановые']),
+                "каштановые,каштановые": 'каштановые',
+                "каштановые,рыжие": getRandomChoice(['каштановые', 'рыжие']),
+                "каштановые,блонд": getRandomChoice(['каштановые', 'блонд']),
+                "рыжие,рыжие": 'рыжие',
+                "рыжие,блонд": getRandomChoice(['рыжие', 'блонд']),
+                "блонд,блонд": 'блонд'
+            };
+            const hairColor = hairMap[`${hair1},${hair2}`] || hairMap[`${hair2},${hair1}`] || 'чёрные';
+
+            // Рост
+            const height = sex === "муж"
+                ? Math.round((height1 + height2) * 0.54 + getRandomNumber(-5, 5))
+                : Math.round((height1 * 0.51 + height2 * 0.49) + getRandomNumber(-5, 5));
+
+            // Телосложение
+            const bodyType = getRandomChoice([body1, body2]);
+
+            // Национальность
+            const nation = nation1 === nation2 ? nation1 : getRandomChoice([nation1, nation2, `${nation1}-${nation2}`]);
+
+            // Вредные привычки
+            let habitsResult;
+            if (habit1 === "есть" && habit2 === "есть") {
+                habitsResult = "есть (высокая вероятность)";
+            } else if (habit1 === "есть" || habit2 === "есть") {
+                habitsResult = getRandomChoice(["есть", "нет"]);
+            } else {
+                habitsResult = "нет";
+            }
+
+            // Формирование результа
+            const resultText = `
+                <p><strong>Пол:</strong> ${sex}</p>
+                <p><strong>Группа крови:</strong> ${bloodType}</p>
+                <p><strong>Цвет глаз:</strong> ${eyeColor}</p>
+                <p><strong>Цвет кожи:</strong> ${skinColor}</p>
+                <p><strong>Цвет волос:</strong> ${hairColor}</p>
+                <p><strong>Телосложение:</strong> ${bodyType}</p>
+                <p><strong>Рост:</strong> ${height} см</p>
+                <p><strong>Национальность:</strong> ${nation}</p>
+                <p><strong>Вредные привычки:</strong> ${habitsResult}</p>
+            `;
+
+            document.getElementById("result").innerHTML = resultText;
+            document.getElementById("resultContainer").classList.add("show");
+
+            // Сохраняем результат в историю
+            const resultData = {
+                sex,
+                bloodType,
+                eyeColor,
+                skinColor,
+                hairColor,
+                bodyType,
+                height,
+                nation,
+                habitsResult
+            };
+            history.push(resultData);
+            updateHistory();
+        });
+
+        function getRandomChoice(options) {
+            return options[Math.floor(Math.random() * options.length)];
+        }
+
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function updateHistory() {
+            const historyList = document.getElementById("historyList");
+            historyList.innerHTML = "";
+            history.forEach((item, index) => {
+                const historyItem = document.createElement("div");
+                historyItem.className = "history-item";
+                historyItem.innerHTML = `
+                    <strong>Расчет ${index + 1}:</strong>
+                    <p><strong>Пол:</strong> ${item.sex}</p>
+                    <p><strong>Группа крови:</strong> ${item.bloodType}</p>
+                    <p><strong>Цвет глаз:</strong> ${item.eyeColor}</p>
+                    <p><strong>Цвет кожи:</strong> ${item.skinColor}</p>
+                    <p><strong>Цвет волос:</strong> ${item.hairColor}</p>
+                    <p><strong>Телосложение:</strong> ${item.bodyType}</p>
+                    <p><strong>Рост:</strong> ${item.height} см</p>
+                    <p><strong>Национальность:</strong> ${item.nation}</p>
+                    <p><strong>Вредные привычки:</strong> ${item.habitsResult}</p>
+                `;
+                historyList.appendChild(historyItem);
+                setTimeout(() => {
+                    historyItem.classList.add("show");
+                }, 100);
+            });
+        }
+
+        document.getElementById("historyToggleBtn").addEventListener("click", function () {
+            document.getElementById("historySidebar").classList.toggle("open");
+        });
+
+        document.getElementById("clearHistoryBtn").addEventListener("click", function () {
+            history.length = 0;
+            updateHistory();
+        });
+    </script>
+</body>
+</html>
